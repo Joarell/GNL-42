@@ -6,7 +6,7 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/21 23:52:55 by Jev              ###   ########.fr       */
+/*   Updated: 2021/11/22 21:53:28 by Jev              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,11 +62,11 @@ int main (void)
 	int		fd;
 	char	*cap;
 
-	cap = (char *)malloc(sizeof(char) * BUFFER_SIZE);
-	if (cap == NULL)
-		NULL;
+	/* cap = (char *)malloc(sizeof(char) * BUFFER_SIZE); */
+	/* if (cap == NULL) */
+	/* 	NULL; */
 	fd = open("text.txt", O_RDONLY);
-	read(fd, cap, BUFFER_SIZE);
+	get_next_line(fd);
 	printf("%s\n", cap);
 	close(fd);
 	return (0);
