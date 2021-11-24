@@ -6,7 +6,7 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/22 21:53:28 by Jev              ###   ########.fr       */
+/*   Updated: 2021/11/23 22:57:56 by Jev              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,28 @@
  */
 #include "get_next_line.h"
 
-static t_list	*new_line(int fd)
+static	char	*move_n(char const *fd)
+{
+	int i;
+
+	i = 0;
+	while (fd[i] == '\n')
+	{
+
+	}
+	return ((char *)fd);
+}
+
+static t_list	*new_line(char *fd)
 {
 	t_list	*new_l;
+	
+	if (!fd)
+		return(NULL);
+	while (BUFFER_SIZE)
+	{
+		
+	}
 
 	return (new_l);
 }
@@ -46,11 +65,13 @@ char	*get_next_line(int fd)
 	static	t_list	*lines;
 	char	*file;
 	
-	
+	lines = NULL;
 	file = (char *)malloc(BUFFER_SIZE * sizeof(char));
 	if (file == NULL)
 		return (NULL);
 	read(fd, file, BUFFER_SIZE);
+	new_line(file);
+	free(file);
 
 	return (NULL);
 }
