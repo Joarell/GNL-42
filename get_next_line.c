@@ -6,71 +6,69 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/23 22:57:56 by Jev              ###   ########.fr       */
+/*   Updated: 2021/11/25 05:11:11 by coder            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 /* Copiar a quantidade de bites mediante o BUFFER_SIZE.
  * Retornar a linha mediante o \n, encontrado
  * Caso não tenha nada para ser lido, retorne (NULL)
- *
+ * /home/coder/Jev/GNL-42/get_next_line.h
  */
 #include "get_next_line.h"
 
-static	char	*move_n(char const *fd)
-{
-	int i;
+static	char	*move_and_creat(char const *fd)
+	{
+	int		j;
+	size_t	i;
+	char	*line;
 
 	i = 0;
-	while (fd[i] == '\n')
+	j = 0;
+	while (fd[i] != '\n' && i <= BUFFER_SIZE)
 	{
-
+		i++;
 	}
-	return ((char *)fd);
+	line = (char *)malloc(i * sizeof(char) + 1);
+	if (line == NULL)
+		return (NULL);
+	while (--i)
+	{
+		line[j] = *fd;
+		fd++;
+		j++;
+	}
+	line[j] = '\0';
+	return (line);
 }
 
-static t_list	*new_line(char *fd)
+static	t_list	*lstadd_back(char *fd)
 {
-	t_list	*new_l;
-	
-	if (!fd)
-		return(NULL);
-	while (BUFFER_SIZE)
-	{
-		
-	}
+	t_list	*lst;
+	char	
 
-	return (new_l);
-}
-static void	lstadd_back(t_list **lst, t_list *new)
-{
-	t_list	*tmp;
-
-	tmp = *lst;
-	if (new == NULL)
-		return ;
-	if (*lst == NULL)
+	lst = NULL;
+	if (!fd || !BUFFER_SIZE)
+		return (NULL);
+	while (lst->next)
 	{
-		*lst = new;
-		return ;
+		move_and_creat();
+		lst = lst->next;
 	}
-	while (tmp->next)
-	{
-		tmp = tmp->next;
-	}
+	return (lst);
 }
 
 char	*get_next_line(int fd)
 {
-	static	t_list	*lines;
+	//static	t_list	*lines;
 	char	*file;
 	
-	lines = NULL;
+	//lines = NULL;
 	file = (char *)malloc(BUFFER_SIZE * sizeof(char));
 	if (file == NULL)
 		return (NULL);
 	read(fd, file, BUFFER_SIZE);
-	new_line(file);
+	lstadd_back(file);
 	free(file);
 
 	return (NULL);
@@ -81,14 +79,11 @@ char	*get_next_line(int fd)
 int main (void)
 {
 	int		fd;
-	char	*cap;
-
 	/* cap = (char *)malloc(sizeof(char) * BUFFER_SIZE); */
 	/* if (cap == NULL) */
 	/* 	NULL; */
 	fd = open("text.txt", O_RDONLY);
 	get_next_line(fd);
-	printf("%s\n", cap);
 	close(fd);
 	return (0);
 }
