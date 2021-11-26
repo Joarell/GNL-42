@@ -6,7 +6,7 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/26 01:23:59 by coder            ###   ########.fr       */
+/*   Updated: 2021/11/26 07:08:30 by Jev              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,26 +20,26 @@
 
 static	char	*move_and_creat(char const *fd)
 {
-	int		j;
+	int		w;
 	size_t	i;
 	char	*line;
 
 	i = 0;
-	j = 0;
+	w = 0;
 	while (fd[i] != '\n' && i <= BUFFER_SIZE)
 	{
 		i++;
 	}
-	line = (char *)malloc(i * sizeof(char) + 1);
+	i++;
+	line = (char *)malloc(i * sizeof(char));
 	if (line == NULL)
 		return (NULL);
-	while (--i)
+	while (i--)
 	{
-		line[j] = *fd;
+		line[w] = *fd;
 		fd++;
-		j++;
+		w++;
 	}
-	line[j] = '\0';
 	return (line);
 }
 
@@ -56,12 +56,36 @@ static	size_t	len_fd(char *fd)
 	return (len);
 }
 
+static	t_list	*nodes(t_list **lst, void *line)
+{
+	t_list	*new_line;
+	t_list	*aux;
+
+	aux = *lst;
+	new_line = (t_list *)malloc(sizeof(t_list));
+	if (new_line == NULL)
+	{
+		return (NULL);
+	}
+	new_line->content = line;
+	new_line->next = NULL;
+	if (*lst == NULL)
+	{
+		return (*lst = new_line);
+	}
+	while (aux->next)
+	{
+		aux = aux->next;
+	}
+	aux->next = new_line;
+	return (aux);
+}
+
 static	t_list	*lstadd_back(const char *fd)
 {
-	t_list	*lst;
-	char	*new;
-	size_t	buffer;
-	t_list	*new_line;
+	static t_list	*lst;
+	char			*new;
+	size_t			buffer;
 
 	buffer = BUFFER_SIZE;
 	lst = NULL;
@@ -70,13 +94,9 @@ static	t_list	*lstadd_back(const char *fd)
 	while (buffer)
 	{
 		new = move_and_creat(fd);
-		new_line = (t_list *)malloc(sizeof(t_list));
-		if (new_line == NULL)
-			return (NULL);
-		new_line->content = new;
-		new_line->next = NULL;
-		lst = new_line;
+		nodes(&lst, new);
 		buffer -= len_fd(new);
+		fd += len_fd(new);
 	}
 	return (lst);
 }
