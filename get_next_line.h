@@ -6,13 +6,12 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/20 21:13:17 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/20 21:13:22 by Jev              ###   ########.fr       */
+/*   Updated: 2021/11/25 03:33:15 by coder            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE
 # define GET_NEXT_LINE
-# define OPEN_MAX 256
 # include <stdlib.h>
 # include <unistd.h>
 
