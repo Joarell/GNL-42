@@ -6,7 +6,7 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/25 05:11:11 by coder            ###   ########.fr       */
+/*   Updated: 2021/11/26 01:23:59 by coder            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,10 @@
  * /home/coder/Jev/GNL-42/get_next_line.h
  */
 #include "get_next_line.h"
+#include <stddef.h>
 
 static	char	*move_and_creat(char const *fd)
-	{
+{
 	int		j;
 	size_t	i;
 	char	*line;
@@ -42,34 +43,53 @@ static	char	*move_and_creat(char const *fd)
 	return (line);
 }
 
-static	t_list	*lstadd_back(char *fd)
+static	size_t	len_fd(char *fd)
+{
+	int	len;
+
+	len = 0;
+	while (*fd != '\0')
+	{
+		fd++;
+		len++;
+	}
+	return (len);
+}
+
+static	t_list	*lstadd_back(const char *fd)
 {
 	t_list	*lst;
-	char	
+	char	*new;
+	size_t	buffer;
+	t_list	*new_line;
 
+	buffer = BUFFER_SIZE;
 	lst = NULL;
-	if (!fd || !BUFFER_SIZE)
+	if (!fd || !buffer)
 		return (NULL);
-	while (lst->next)
+	while (buffer)
 	{
-		move_and_creat();
-		lst = lst->next;
+		new = move_and_creat(fd);
+		new_line = (t_list *)malloc(sizeof(t_list));
+		if (new_line == NULL)
+			return (NULL);
+		new_line->content = new;
+		new_line->next = NULL;
+		lst = new_line;
+		buffer -= len_fd(new);
 	}
 	return (lst);
 }
 
 char	*get_next_line(int fd)
 {
-	//static	t_list	*lines;
 	char	*file;
 	
-	//lines = NULL;
 	file = (char *)malloc(BUFFER_SIZE * sizeof(char));
 	if (file == NULL)
 		return (NULL);
 	read(fd, file, BUFFER_SIZE);
 	lstadd_back(file);
-	free(file);
 
 	return (NULL);
 }
