@@ -6,12 +6,11 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/28 21:12:28 by Jev              ###   ########.fr       */
+/*   Updated: 2021/11/28 21:52:12 by Jev              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stddef.h>
 
 static	char	*move_and_creat(char const *fd)
 {
@@ -21,7 +20,7 @@ static	char	*move_and_creat(char const *fd)
 
 	i = 0;
 	w = 0;
-	while (fd[i] != '\n' && i <= BUFFER_SIZE)
+	while (fd[i] != '\n' && i <= BUFFER_SIZE && fd[i] != '\0')
 	{
 		i++;
 	}
@@ -108,12 +107,19 @@ static	t_list	*creating_list(char *fd)
 char	*get_next_line(int fd)
 {
 	char	*file;
+
+	file = NULL;
 	if (BUFFER_SIZE)
 	{
 		file = (char *)malloc(BUFFER_SIZE * sizeof(char));
 		if (file == NULL)
 			return (NULL);
 		read(fd, file, BUFFER_SIZE);
+		if (!*file)
+		{
+			free(file);
+			return (NULL);
+		}
 		return ((char *)creating_list(file));
 	}
 	return (NULL);
@@ -126,8 +132,8 @@ int main (void)
 	int		fd;
 	int		i;
 
-	fd = open("text.txt", O_RDONLY);
-	i = 6;
+	fd = open("./gnlTester/files/empty", O_RDONLY);
+	i = 1;
 	while(i--)
 	{
 		printf("%s", get_next_line(fd));
