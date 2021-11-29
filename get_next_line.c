@@ -6,7 +6,7 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/28 21:52:12 by Jev              ###   ########.fr       */
+/*   Updated: 2021/11/29 02:20:24 by Jev              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,10 @@ static	char	*move_and_creat(char const *fd)
 
 	i = 0;
 	w = 0;
-	while (fd[i] != '\n' && i <= BUFFER_SIZE && fd[i] != '\0')
+	while (fd[i - 1] != '\n' && i <= BUFFER_SIZE && fd[i] != '\0')
 	{
 		i++;
 	}
-	i++;
 	line = (char *)malloc(i * sizeof(char));
 	if (line == NULL)
 		return (NULL);
@@ -50,27 +49,26 @@ static	size_t	len_fd(char *fd)
 	return (len);
 }
 
-static	t_list	*nodes(t_list **lst, void *line)
+static	t_list	*nodes(t_list **lst, char *line)
 {
 	t_list	*new_line;
 	t_list	*aux;
 
 	aux = *lst;
+	new_line = NULL;
 	new_line = (t_list *)malloc(sizeof(t_list));
 	if (new_line == NULL)
 	{
 		return (NULL);
 	}
-	new_line->content = line;
+	*(char *)new_line->content = *line;
 	new_line->next = NULL;
 	if (*lst == NULL)
 	{
 		return (*lst = new_line);
 	}
 	while (aux->next)
-	{
 		aux = aux->next;
-	}
 	aux->next = new_line;
 	return (aux);
 }
@@ -78,7 +76,6 @@ static	t_list	*nodes(t_list **lst, void *line)
 static	t_list	*creating_list(char *fd)
 {
 	static t_list	*lst;
-	char			*new;
 	size_t			buffer;
 
 	if (!lst)
@@ -89,16 +86,17 @@ static	t_list	*creating_list(char *fd)
 			return (NULL);
 		while (buffer)
 		{
-			new = move_and_creat(fd);
-			nodes(&lst, new);
-			buffer -= len_fd(new);
-			fd += len_fd(new);
+			nodes(&lst, move_and_creat(fd));
+			buffer -= len_fd(move_and_creat(fd));
+			fd += len_fd(move_and_creat(fd));
 			if (!*fd)
+			{
 				break ;
+				free(fd);
+			}
 		}
 		return (lst->content);
 	}
-	free(fd);
 	free(lst->content);
 	lst = lst->next;
 	return (lst->content);
@@ -108,14 +106,12 @@ char	*get_next_line(int fd)
 {
 	char	*file;
 
-	file = NULL;
 	if (BUFFER_SIZE)
 	{
 		file = (char *)malloc(BUFFER_SIZE * sizeof(char));
 		if (file == NULL)
 			return (NULL);
-		read(fd, file, BUFFER_SIZE);
-		if (!*file)
+		if (!(read(fd, file, BUFFER_SIZE)))
 		{
 			free(file);
 			return (NULL);
@@ -132,7 +128,8 @@ int main (void)
 	int		fd;
 	int		i;
 
-	fd = open("./gnlTester/files/empty", O_RDONLY);
+	/* fd = open("./gnlTester/files/empty", O_RDONLY); */
+	fd = open("text.txt", O_RDONLY);
 	i = 1;
 	while(i--)
 	{
