@@ -6,7 +6,7 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/28 19:00:12 by Jev              ###   ########.fr       */
+/*   Updated: 2021/11/28 21:12:28 by Jev              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,11 +94,12 @@ static	t_list	*creating_list(char *fd)
 			nodes(&lst, new);
 			buffer -= len_fd(new);
 			fd += len_fd(new);
-			if (!fd)
+			if (!*fd)
 				break ;
 		}
 		return (lst->content);
 	}
+	free(fd);
 	free(lst->content);
 	lst = lst->next;
 	return (lst->content);
@@ -107,7 +108,7 @@ static	t_list	*creating_list(char *fd)
 char	*get_next_line(int fd)
 {
 	char	*file;
-	if (BUFFER_SIZE > 0)
+	if (BUFFER_SIZE)
 	{
 		file = (char *)malloc(BUFFER_SIZE * sizeof(char));
 		if (file == NULL)
