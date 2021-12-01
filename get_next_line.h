@@ -6,7 +6,7 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/20 21:13:17 by Jev               #+#    #+#             */
-/*   Updated: 2021/11/28 18:44:07 by Jev              ###   ########.fr       */
+/*   Updated: 2021/11/30 21:06:18 by Jev              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,9 @@
 # endif
 typedef struct s_list
 {
-	void			*content;
+	char			*content;
 	struct s_list	*next;
+	struct s_list	*back;
 }					t_list;
 char	*get_next_line(int fd);
 
