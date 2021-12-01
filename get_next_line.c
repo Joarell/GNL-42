@@ -6,7 +6,7 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/12/01 01:10:38 by Jev              ###   ########.fr       */
+/*   Updated: 2021/12/01 07:33:37 by Jev              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ static	size_t	len_fd(char *fd)
 	int	len;
 
 	len = 0;
-	while (*fd != '\0')
+	while (*fd)
 	{
 		fd++;
 		len++;
@@ -59,6 +59,7 @@ static	t_list	*nodes(t_list **lst, char *line)
 	t_list	*aux;
 
 	aux = *lst;
+	new_line = NULL;
 	new_line = (t_list *)malloc(sizeof(t_list));
 	if (new_line == NULL)
 	{
@@ -68,7 +69,6 @@ static	t_list	*nodes(t_list **lst, char *line)
 	new_line->next = NULL;
 	if (*lst == NULL)
 	{
-		new_line->back = aux;
 		return (*lst = new_line);
 	}
 	while (aux->next)
@@ -92,7 +92,7 @@ static	char	*creating_list(char *fd)
 		return (NULL);
 	def = fd;
 	new = NULL;
-	while (buffer && *fd != '\0')
+	while (*fd)
 	{
 		new = move_and_creat(fd);
 		nodes(&g_lst, new);
@@ -108,6 +108,7 @@ char	*get_next_line(int fd)
 	char	*file;
 	t_list	*erase;
 
+	file = NULL;
 	if (BUFFER_SIZE && !g_lst)
 	{
 		file = (char *)malloc(BUFFER_SIZE * sizeof(char));
@@ -120,7 +121,6 @@ char	*get_next_line(int fd)
 			free(file);
 				return (NULL);
 	}
-	erase = NULL;
 	if (g_lst->next != NULL)
 	{
 		g_lst = g_lst->next;
