@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+/* ************************************************************************ */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
@@ -6,8 +6,8 @@
 /*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/12/01 07:33:37 by Jev              ###   ########.fr       */
-/*                                                                            */
+/*   Updated: 2021/12/07 03:43:59 by coder            ###   ########.fr       */
+/*                                                                           */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
@@ -105,28 +105,29 @@ static	char	*creating_list(char *fd)
 
 char	*get_next_line(int fd)
 {
-	char	*file;
+	int		buff;
 	t_list	*erase;
+	char	*yank;
+	int		i;
 
-	file = NULL;
+	yank = NULL;
 	if (BUFFER_SIZE && !g_lst)
 	{
-		file = (char *)malloc(BUFFER_SIZE * sizeof(char));
-		if (file == NULL)
+		yank = (char *)malloc(BUFFER_SIZE * sizeof(char));
+		if (yank == NULL)
 			return (NULL);
-		read(fd, file, BUFFER_SIZE);
-		if (*file)
-			return ((char *)creating_list(file));
+		buff = read(fd, yank, BUFFER_SIZE);
+		if (*yank && buff > 0)
+		{
+			i = 0;
+			while (yank[i] != '\n')
+			{
+				i += BUFFER_SIZE;
+			}
+		}
 		else
-			free(file);
+			free(yank);
 				return (NULL);
-	}
-	if (g_lst->next != NULL)
-	{
-		g_lst = g_lst->next;
-		erase = g_lst->back;
-		free(erase->content);
-		return (g_lst->content);
 	}
 	return (NULL);
 }
