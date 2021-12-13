@@ -1,134 +1,128 @@
-/* ************************************************************************ */
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: Jev <jsouza-c@student.42sp.org.br>         +#+  +:+       +#+        */
+/*   By: jsouza-c <jsouza-c@student.42sp.org.b      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/18 23:28:57 by Jev               #+#    #+#             */
-/*   Updated: 2021/12/07 03:43:59 by coder            ###   ########.fr       */
-/*                                                                           */
+/*   Created: 2021/12/11 21:25:20 by jsouza-c          #+#    #+#             */
+/*   Updated: 2021/12/12 22:59:41 by jsouza-c         ###   ########.fr       */
+/*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
 static t_list	*g_lst;
+int				g_buffer;
+int				g_len;
+char			*g_aux;
 
-static	char	*move_and_creat(char const *fd)
+/* static	char	*move_and_creat(char const *fd) */
+/* { */
+/*  */
+/* } */
+
+static	char	*glue(char *fd)
 {
-	int		w;
-	size_t	i;
-	char	*line;
+	char	*complete;
 
-	i = 0;
-	w = 0;
-	line = NULL;
-	while (fd[i] != '\n' && i <= BUFFER_SIZE && fd[i] != '\0')
-	{
-		i++;
-	}
-	i++;
-	line = (char *)malloc(i * sizeof(char) + 1);
-	if (line == NULL)
+	g_len = 0;
+	g_aux = g_lst->content;
+	while (g_aux[g_len] != '\0')
+		g_len++;
+	complete = (char *)malloc((g_len + g_buffer) * sizeof(char) + 1);
+	if (complete == NULL)
 		return (NULL);
-	while (i--)
+	g_len = 0;
+	while (g_aux[g_len] != '\0')
 	{
-		line[w] = *fd;
-		fd++;
-		w++;
+		complete[g_len] = g_aux[g_len];
+		g_len++;
 	}
-	return (line);
+	g_buffer = 0;
+	free(g_lst->content);
+	while (fd[g_buffer] != '\0')
+	{
+		complete[g_len] = fd[g_buffer];
+		g_len++;
+		g_buffer++;
+	}
+	complete[g_len] = '\0';
+	return (complete);
 }
 
-static	size_t	len_fd(char *fd)
-{
-	int	len;
-
-	len = 0;
-	while (*fd)
-	{
-		fd++;
-		len++;
-	}
-	return (len);
-}
-
-static	t_list	*nodes(t_list **lst, char *line)
+static	t_list	*nodes(char *line)
 {
 	t_list	*new_line;
-	t_list	*aux;
 
-	aux = *lst;
 	new_line = NULL;
 	new_line = (t_list *)malloc(sizeof(t_list));
 	if (new_line == NULL)
-	{
 		return (NULL);
+	if (g_lst == NULL)
+	{
+		new_line->content = line;
+		g_lst = new_line;
 	}
-	new_line->content = line;
+	else
+		new_line->content = glue(line);
 	new_line->next = NULL;
-	if (*lst == NULL)
-	{
-		return (*lst = new_line);
-	}
-	while (aux->next)
-	{
-		aux = aux->next;
-	}
-	new_line->back = aux;
-	aux->next = new_line;
-	return (aux);
+	g_lst = new_line;
+	return (g_lst);
 }
 
 static	char	*creating_list(char *fd)
 {
-	size_t		buffer;
-	char		*new;
-	char		*def;
+	int	w;
 
-	buffer = BUFFER_SIZE;
-	g_lst = NULL;
-	if (!fd || !buffer)
+	g_buffer = BUFFER_SIZE;
+	if (!g_lst)
+		g_lst = NULL;
+	if (!fd || !g_buffer)
 		return (NULL);
-	def = fd;
-	new = NULL;
-	while (*fd)
+	while (fd[g_len] != '\n' && g_len <= BUFFER_SIZE && fd[g_len] != '\0')
+		g_len++;
+	g_len++;
+	g_aux = (char *)malloc(g_len * sizeof(char) + 1);
+	if (g_aux == NULL)
+		return (NULL);
+	w = 0;
+	while (g_len--)
 	{
-		new = move_and_creat(fd);
-		nodes(&g_lst, new);
-		buffer -= len_fd(new);
-		fd += len_fd(new);
+		g_aux[w] = fd[w];
+		w++;
 	}
-	free(def);
+	g_aux[w] = '\0';
+	nodes(g_aux);
+	free(fd);
 	return (g_lst->content);
 }
 
 char	*get_next_line(int fd)
 {
-	int		buff;
-	t_list	*erase;
 	char	*yank;
-	int		i;
 
-	yank = NULL;
-	if (BUFFER_SIZE && !g_lst)
+	yank = (char *)malloc(BUFFER_SIZE * sizeof(char));
+	if (yank == NULL)
+		return (NULL);
+	g_buffer = read(fd, yank, BUFFER_SIZE);
+	if (*yank && g_buffer > 0)
 	{
-		yank = (char *)malloc(BUFFER_SIZE * sizeof(char));
-		if (yank == NULL)
-			return (NULL);
-		buff = read(fd, yank, BUFFER_SIZE);
-		if (*yank && buff > 0)
+		while (g_buffer)
 		{
-			i = 0;
-			while (yank[i] != '\n')
+			creating_list(yank);
+			g_buffer = read(fd, yank, BUFFER_SIZE);
+			g_len = 0;
+			while (g_lst->content[g_len] != '\0')
 			{
-				i += BUFFER_SIZE;
+				g_len++;
+				if (g_lst->content[g_len] == '\n')
+					return (g_lst->content);
 			}
 		}
-		else
-			free(yank);
-				return (NULL);
 	}
+	else
+		free(yank);
 	return (NULL);
 }
 
