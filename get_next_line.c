@@ -6,7 +6,7 @@
 /*   By: jsouza-c <jsouza-c@student.42sp.org.b      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/11 21:25:20 by jsouza-c          #+#    #+#             */
-/*   Updated: 2021/12/12 22:59:41 by jsouza-c         ###   ########.fr       */
+/*   Updated: 2021/12/14 00:57:02 by jsouza-c         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,34 @@ static t_list	*g_lst;
 int				g_buffer;
 int				g_len;
 char			*g_aux;
+t_list			*g_new_line;
 
-/* static	char	*move_and_creat(char const *fd) */
-/* { */
-/*  */
-/* } */
+static	char	*next_node(char const *fd)
+{
+	g_buffer = 0;
+	while (*fd - 1 != '\n')
+		fd++;
+	g_buffer = 0;
+	while (fd[g_buffer] != '\0')
+		g_buffer++;
+	g_aux = (char *)malloc(g_buffer * sizeof(char) + 1);
+	if (g_aux == NULL)
+		return (NULL);
+	g_buffer = 0;
+	while (fd[g_buffer] != '\0')
+	{
+		g_aux[g_buffer] = fd[g_buffer];
+		g_buffer++;
+	}
+	g_aux[g_buffer] = '\0';
+	g_new_line = (t_list *)malloc(sizeof(t_list));
+	if (g_new_line == NULL)
+		return NULL;
+	g_new_line->content = g_aux;
+	g_new_line->next = NULL;
+	g_lst->next = g_new_line;
+	return (g_lst->content);
+}
 
 static	char	*glue(char *fd)
 {
@@ -53,28 +76,35 @@ static	char	*glue(char *fd)
 
 static	t_list	*nodes(char *line)
 {
-	t_list	*new_line;
-
-	new_line = NULL;
-	new_line = (t_list *)malloc(sizeof(t_list));
-	if (new_line == NULL)
+	if (g_lst != NULL)
+	{
+		g_len = 0;
+		while (g_lst->content[g_len] != '\0')
+		{
+			g_len++;
+			if (g_lst->content[g_len] == '\n')
+				free(g_lst->content);
+					g_lst = g_lst->next;
+			
+		}
+	}
+	g_new_line = (t_list *)malloc(sizeof(t_list));
+	if (g_new_line == NULL)
 		return (NULL);
 	if (g_lst == NULL)
 	{
-		new_line->content = line;
-		g_lst = new_line;
+		g_new_line->content = line;
+		g_lst = g_new_line;
 	}
 	else
-		new_line->content = glue(line);
-	new_line->next = NULL;
-	g_lst = new_line;
+		g_new_line->content = glue(line);
+	g_new_line->next = NULL;
+	g_lst = g_new_line;
 	return (g_lst);
 }
 
 static	char	*creating_list(char *fd)
 {
-	int	w;
-
 	g_buffer = BUFFER_SIZE;
 	if (!g_lst)
 		g_lst = NULL;
@@ -82,17 +112,21 @@ static	char	*creating_list(char *fd)
 		return (NULL);
 	while (fd[g_len] != '\n' && g_len <= BUFFER_SIZE && fd[g_len] != '\0')
 		g_len++;
-	g_len++;
-	g_aux = (char *)malloc(g_len * sizeof(char) + 1);
+	g_aux = (char *)malloc(++g_len * sizeof(char) + 1);
 	if (g_aux == NULL)
 		return (NULL);
-	w = 0;
+	g_buffer = 0;
 	while (g_len--)
 	{
-		g_aux[w] = fd[w];
-		w++;
+		if (fd[g_buffer] != '\n')
+		{
+			g_aux[g_buffer] = fd[g_buffer];
+			g_buffer++;
+		}
+		else
+			return (next_node(fd));
 	}
-	g_aux[w] = '\0';
+	g_aux[g_buffer] = '\0';
 	nodes(g_aux);
 	free(fd);
 	return (g_lst->content);
