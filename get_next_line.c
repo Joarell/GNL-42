@@ -6,7 +6,7 @@
 /*   By: jsouza-c <jsouza-c@student.42sp.org.b      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/11 21:25:20 by jsouza-c          #+#    #+#             */
-/*   Updated: 2021/12/16 00:14:30 by jsouza-c         ###   ########.fr       */
+/*   Updated: 2022/01/04 23:01:01 by jev              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,9 @@ t_list			*g_new_line;
 
 static	t_list	*next_node(char const *fd)
 {
-	t_list	*tmp;
-
+	/* t_list	*hold; */
+    /*  */
+	/* hold = g_new_line; */
 	g_buffer = 0;
 	g_len = BUFFER_SIZE + 1;
 	g_aux = (char *)malloc(g_len * sizeof(char *) + 1);
@@ -34,12 +35,13 @@ static	t_list	*next_node(char const *fd)
 		g_buffer++;
 	}
 	g_aux[g_buffer] = '\0';
-	tmp = (t_list *)malloc(sizeof(t_list));
-	if (tmp == NULL)
+	*g_lst->next = *g_aux;
+	/* g_new_line = (t_list *)malloc(sizeof(t_list)); */
+	if (g_new_line == NULL)
 		return NULL;
-	tmp->content = g_aux;
-	tmp->next = NULL;
-	g_lst->next = tmp;
+	g_new_line->content = g_aux;
+	g_new_line->next = NULL;
+	g_lst->next = g_new_line;
 	return (g_lst);
 }
 
