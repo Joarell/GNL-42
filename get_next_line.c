@@ -6,7 +6,7 @@
 /*   By: jsouza-c <jsouza-c@student.42sp.org.b      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/11 21:25:20 by jsouza-c          #+#    #+#             */
-/*   Updated: 2022/01/04 23:01:01 by jev              ###   ########.fr       */
+/*   Updated: 2022/02/05 16:43:07 by jsouza-c         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,28 +20,26 @@ t_list			*g_new_line;
 
 static	t_list	*next_node(char const *fd)
 {
-	/* t_list	*hold; */
-    /*  */
-	/* hold = g_new_line; */
+	t_list	*hold;
+
 	g_buffer = 0;
 	g_len = BUFFER_SIZE + 1;
 	g_aux = (char *)malloc(g_len * sizeof(char *) + 1);
 	if (g_aux == NULL)
 		return (NULL);
 	g_buffer = 0;
-	while (g_len--)
+	while (--g_len)
 	{
 		g_aux[g_buffer] = fd[g_buffer];
 		g_buffer++;
 	}
 	g_aux[g_buffer] = '\0';
-	*g_lst->next = *g_aux;
-	/* g_new_line = (t_list *)malloc(sizeof(t_list)); */
-	if (g_new_line == NULL)
-		return NULL;
-	g_new_line->content = g_aux;
-	g_new_line->next = NULL;
-	g_lst->next = g_new_line;
+	hold = NULL;
+	hold = (t_list *)malloc(sizeof(t_list ));
+	if (hold == NULL)
+		return (NULL);
+	hold->content = g_aux;
+	g_lst->next = hold;
 	return (g_lst);
 }
 
