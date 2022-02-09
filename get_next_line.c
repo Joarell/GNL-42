@@ -6,7 +6,7 @@
 /*   By:jsouza-c <jsouza-c@student.42sp.org.br      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/11 21:25:20 by jsouza-c          #+#    #+#             */
-/*   Updated: 2022/02/08 22:52:43 by jsouza-c         ###   ########.fr       */
+/*   Updated: 2022/02/09 05:53:34 by jsouza-c         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ static	char	*glue(char *fd)
 static	t_list	*nodes(char *line)
 {
 	g_len = 0;
-	while (g_lst && g_aux[g_len] != '\0')
+	while (g_lst && line[g_len] != '\0')
 	{
 		if (g_aux[g_len] == '\n')
 		{
