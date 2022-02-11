@@ -6,7 +6,7 @@
 /*   By:jsouza-c <jsouza-c@student.42sp.org.br      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/11 21:25:20 by jsouza-c          #+#    #+#             */
-/*   Updated: 2022/02/09 05:53:34 by jsouza-c         ###   ########.fr       */
+/*   Updated: 2022/02/11 07:01:36 by jsouza-c         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ static	t_list	*nodes(char *line)
 	g_len = 0;
 	while (g_lst && line[g_len] != '\0')
 	{
-		if (g_aux[g_len] == '\n')
+		if (g_lst->next)
 		{
 			free(g_lst->content);
 			g_lst = g_lst->next;
