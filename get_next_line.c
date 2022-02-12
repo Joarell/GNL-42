@@ -6,7 +6,7 @@
 /*   By:jsouza-c <jsouza-c@student.42sp.org.br      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/11 21:25:20 by jsouza-c          #+#    #+#             */
-/*   Updated: 2022/02/11 07:01:36 by jsouza-c         ###   ########.fr       */
+/*   Updated: 2022/02/11 23:38:03 by jsouza-c         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,6 @@ static	t_list	*nodes(char *line)
 			free(g_lst->content);
 			g_lst = g_lst->next;
 		}
-		/* else if (g_lst->content[g_len] == '\0') */
-		/* 	break ; */
 		g_len++;
 	}
 	g_new_line = (t_list *)malloc(sizeof(t_list));
@@ -71,6 +69,7 @@ static	t_list	*nodes(char *line)
 	}
 	else
 		g_new_line->content = glue(line);
+	free(g_lst->content);
 	g_new_line->next = NULL;
 	g_lst = g_new_line;
 	return (g_lst);
