@@ -6,7 +6,7 @@
 /*   By:jsouza-c <jsouza-c@student.42sp.org.br      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/11 21:25:20 by jsouza-c          #+#    #+#             */
-/*   Updated: 2022/02/11 23:38:03 by jsouza-c         ###   ########.fr       */
+/*   Updated: 2022/02/14 00:12:25 by jsouza-c         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ static	char	*glue(char *fd)
 {
 	char	*complete;
 
-	g_len = 0;
 	g_aux = g_lst->content;
 	while (g_aux[g_len] != '\0')
 		g_len++;
@@ -35,8 +34,9 @@ static	char	*glue(char *fd)
 		complete[g_len] = g_aux[g_len];
 		g_len++;
 	}
+	free(g_lst);
+	free(g_aux);
 	g_buffer = 0;
-	free(g_lst->content);
 	while (fd[g_buffer - 1] != '\n' && fd[g_buffer] != '\0')
 	{
 		complete[g_len] = fd[g_buffer];
@@ -50,15 +50,16 @@ static	char	*glue(char *fd)
 static	t_list	*nodes(char *line)
 {
 	g_len = 0;
-	while (g_lst && line[g_len] != '\0')
+	while (line[g_len] != '\0')
 	{
-		if (g_lst->next)
+		if (g_lst && g_lst->next)
 		{
 			free(g_lst->content);
 			g_lst = g_lst->next;
 		}
 		g_len++;
 	}
+	g_len = 0;
 	g_new_line = (t_list *)malloc(sizeof(t_list));
 	if (g_new_line == NULL)
 		return (NULL);
@@ -69,7 +70,6 @@ static	t_list	*nodes(char *line)
 	}
 	else
 		g_new_line->content = glue(line);
-	free(g_lst->content);
 	g_new_line->next = NULL;
 	g_lst = g_new_line;
 	return (g_lst);
