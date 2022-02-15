@@ -6,7 +6,7 @@
 /*   By:jsouza-c <jsouza-c@student.42sp.org.br      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/11 21:25:20 by jsouza-c          #+#    #+#             */
-/*   Updated: 2022/02/14 00:12:25 by jsouza-c         ###   ########.fr       */
+/*   Updated: 2022/02/15 00:02:02 by jsouza-c         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,8 @@ static	char	*glue(char *fd)
 		complete[g_len] = g_aux[g_len];
 		g_len++;
 	}
-	free(g_lst);
-	free(g_aux);
 	g_buffer = 0;
-	while (fd[g_buffer - 1] != '\n' && fd[g_buffer] != '\0')
+	while (fd[g_buffer] != '\0')
 	{
 		complete[g_len] = fd[g_buffer];
 		g_len++;
@@ -64,10 +62,7 @@ static	t_list	*nodes(char *line)
 	if (g_new_line == NULL)
 		return (NULL);
 	if (g_lst == NULL)
-	{
 		g_new_line->content = line;
-		g_lst = g_new_line;
-	}
 	else
 		g_new_line->content = glue(line);
 	g_new_line->next = NULL;
@@ -115,7 +110,7 @@ static	char	*creating_list(char *fd)
 		return (NULL);
 	g_buffer = 0;
 	fd[g_len] = '\0';
-	while (g_len--)
+	while (g_len--) //There is a infinit loop possibility here.
 	{
 		if (fd[g_buffer - 1] != '\n')
 		{
