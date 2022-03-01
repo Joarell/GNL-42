@@ -79,15 +79,19 @@ static t_list	*next_node(char *fd)
 	int	i;
 
 	nodes(fd);
-	i = g_buffer;
+	i = 0;
 	g_len = BUFFER_SIZE;
 	g_aux = (char *)malloc(g_len * sizeof(char *));
 	if (g_aux == NULL)
 		return (NULL);
-	while (g_buffer < BUFFER_SIZE)
+	g_buffer = 0;
+	while (fd[g_buffer] != '\0')
 	{
-		g_aux[g_buffer - i] = fd[g_buffer];
-		g_aux[g_buffer + 1] = '\0';
+		if (fd[g_buffer - i] == '\n')
+		{
+			g_aux[i] = fd[g_buffer + 1];
+			i++;
+		}
 		g_buffer++;
 	}
 	g_hold = (t_list *)malloc(1 * sizeof(t_list));
