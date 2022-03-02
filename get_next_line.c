@@ -24,9 +24,6 @@ static char	*glue(char *fd)
 	char	*tmp;
 
 	tmp = g_lst->content;
-	while (tmp[g_len] != '\0')
-		g_len++;
-	g_buffer = BUFFER_SIZE;
 	complete = (char *)malloc((g_len + g_buffer) * sizeof(char) + 1);
 	if (complete == NULL)
 		return (NULL);
@@ -49,17 +46,12 @@ static char	*glue(char *fd)
 	return (complete);
 }
 
-static t_list	*nodes(char *line)
+static char	*nodes(char *line)
 {
-	g_len = 0;
-	while (line[g_len] != '\0')
+	if (g_lst && g_lst->next)
 	{
-		if (g_lst && g_lst->next)
-		{
-			free (g_lst->content);
-			g_lst = g_lst->next;
-		}
-		g_len++;
+		free (g_lst->content);
+		g_lst = g_lst->next;
 	}
 	g_len = 0;
 	g_hold = (t_list *)malloc(sizeof(t_list));
@@ -68,10 +60,18 @@ static t_list	*nodes(char *line)
 	if (g_lst == NULL)
 		g_hold->content = line;
 	else
+	{
+		while (g_lst->content[g_len] != '\0')
+			g_len++;
+		g_buffer = BUFFER_SIZE;
 		g_hold->content = glue(line);
+
+	}
 	g_hold->next = NULL;
+	if (g_lst)
+		free(g_lst);
 	g_lst = g_hold;
-	return (g_lst);
+	return (g_lst->content);
 }
 
 static t_list	*next_node(char *fd)
@@ -85,7 +85,7 @@ static t_list	*next_node(char *fd)
 	if (g_aux == NULL)
 		return (NULL);
 	g_buffer = 0;
-	while (fd[g_buffer] != '\0')
+	while (g_len--)
 	{
 		if (fd[g_buffer - i] == '\n')
 		{
@@ -109,25 +109,16 @@ static t_list	*creating_list(char *fd)
 		g_lst = NULL;
 	if (!fd || !g_buffer)
 		return (NULL);
-	g_len = BUFFER_SIZE;
-	g_aux = (char *)malloc(g_len * sizeof(char) + 1);
-	if (g_aux == NULL)
-		return (NULL);
 	g_buffer = 0;
 	fd[g_len] = '\0';
 	while (g_len--)
 	{
 		if (fd[g_buffer] != '\n')
-		{
-			g_aux[g_buffer] = fd[g_buffer];
 			g_buffer++;
-		}
-		else
+		else if (fd[g_buffer] != '\0')
 			return (next_node(fd));
 	}
-	g_aux[g_buffer] = '\0';
-	nodes(g_aux);
-	free(fd);
+	nodes(fd);
 	return (g_lst);
 }
 
@@ -138,15 +129,15 @@ char	*get_next_line(int fd)
 	g_buffer = 1;
 	while (g_buffer)
 	{
-		yank = (char *)malloc(BUFFER_SIZE * sizeof(char) + 1);
+		g_len = BUFFER_SIZE;
+		yank = (char *)malloc(g_len * sizeof(char) + 1);
 		if (yank == NULL)
 			return (NULL);
-		g_buffer = read(fd, yank, BUFFER_SIZE);
-		if (!g_buffer)
-			break ;
-		creating_list(yank);
+		g_buffer = read(fd, yank, g_len);
+		if (g_buffer)
+			creating_list(yank);
 		g_len = 0;
-		while (g_lst->content[g_len] != '\0')
+		while (g_lst->content[g_len] != '\0' && g_buffer)
 		{
 			g_len++;
 			if (g_lst->content[g_len] == '\n')
@@ -154,6 +145,8 @@ char	*get_next_line(int fd)
 		}
 	}
 	free(yank);
+	if (!g_buffer)
+		free(g_lst);
 	return (NULL);
 }
 
@@ -165,12 +158,11 @@ int main(void)
 	int i;
 
 	fd = open("text.txt", O_RDONLY);
-	i = 6;
+	i = 3;
 	while (i--)
 	{
 		printf("%s", get_next_line(fd));
 	}
-	free(get_next_line(fd));
 	close(fd);
 	return (0);
 }
