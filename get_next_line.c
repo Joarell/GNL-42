@@ -48,29 +48,30 @@ static char	*glue(char *fd)
 
 static char	*nodes(char *line)
 {
-	if (!line)
-		free(g_hold);
-	if (g_lst && g_lst->next)
+	if (!g_lst)
+    {
+        g_lst = (t_list *)malloc(sizeof(t_list));
+        if (g_lst == NULL)
+            return (NULL);
+        g_lst->next = NULL;
+        return (g_lst->content = line);
+    }
+	if (g_lst->next)
 	{
-		free(g_lst->content);
-		g_lst = g_lst->next;
+        free(g_lst->content);
+        g_lst = g_lst->next;
 	}
 	g_len = 0;
-	g_hold = (t_list *)malloc(sizeof(t_list));
-	if (g_hold == NULL)
-		return (NULL);
-	if (g_lst == NULL)
-		g_hold->content = line;
-	else
-	{
-		while (g_lst->content[g_len] != '\0')
-			g_len++;
-		while (line[g_buffer] != '\0')
-			g_buffer++;
-		g_hold->content = glue(line);
-	}
-	g_hold->next = NULL;
-	g_lst = g_hold;
+    while (g_lst->content[g_len] != '\0')
+        g_len++;
+    while (line[g_buffer] != '\0')
+        g_buffer++;
+    g_hold = (t_list *)malloc(sizeof(t_list));
+    if (g_hold == NULL)
+        return (NULL);
+    g_hold->content = glue(line);
+    g_hold->next = NULL;
+    g_lst = g_hold;
 	return (g_lst->content);
 }
 
@@ -99,6 +100,7 @@ static t_list	*creating_list(char *fd)
 {
 	if (!g_lst)
 		g_lst = NULL;
+    
 	if (!fd || !g_buffer)
 	{
 		if (g_lst)
@@ -155,11 +157,12 @@ int main(void)
 	int i;
 
 	fd = open("text.txt", O_RDONLY);
-	i = 3;
+	i = 2;
 	while (i--)
 	{
 		printf("%s", get_next_line(fd));
 	}
+    free(get_next_line(fd));
 	close(fd);
 	return (0);
 }
