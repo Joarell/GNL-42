@@ -23,7 +23,7 @@ static char	*glue(char *fd)
 	char	*complete;
 
 	g_aux = g_lst->content;
-	complete = (char *)malloc((g_len + g_buffer) * sizeof(char) + 1);
+	complete = (char *)malloc((g_len + g_buffer + 1) * sizeof(char));
 	if (complete == NULL)
 		return (NULL);
 	g_buffer = 0;
@@ -33,7 +33,7 @@ static char	*glue(char *fd)
 		g_buffer++;
 	}
 	g_len++;
-	free(g_lst);
+    free(g_lst);
 	while (fd[g_len] != '\0')
 	{
 		complete[g_buffer] = fd[g_len];
@@ -48,68 +48,72 @@ static char	*glue(char *fd)
 
 static char	*nodes(char *line)
 {
-	if (!g_lst)
-    {
-        g_lst = (t_list *)malloc(sizeof(t_list));
-        if (g_lst == NULL)
-            return (NULL);
-        g_lst->next = NULL;
-        return (g_lst->content = line);
-    }
-	if (g_lst->next)
-	{
-        free(g_lst->content);
-        g_lst = g_lst->next;
-	}
+	if (!line)
+		free(g_hold);
+	if (g_lst && g_lst->next)
+		g_lst = g_lst->next;
 	g_len = 0;
-    while (g_lst->content[g_len] != '\0')
-        g_len++;
-    while (line[g_buffer] != '\0')
-        g_buffer++;
-    g_hold = (t_list *)malloc(sizeof(t_list));
-    if (g_hold == NULL)
-        return (NULL);
-    g_hold->content = glue(line);
-    g_hold->next = NULL;
-    g_lst = g_hold;
+	g_hold = (t_list *)malloc(sizeof(t_list));
+	if (g_hold == NULL)
+		return (NULL);
+	if (g_lst == NULL)
+		g_hold->content = line;
+	else
+	{
+		while (g_lst->content[g_len] != '\0')
+			g_len++;
+		while (line[g_buffer] != '\0')
+			g_buffer++;
+		g_hold->content = glue(line);
+	}
+	g_hold->next = NULL;
+	g_lst = g_hold;
+    g_len = 0;
 	return (g_lst->content);
 }
 
 static t_list	*next_node(char *fd)
 {
-	if (!fd)
-		return (NULL);
 	nodes(fd);
-	g_aux = fd;
-	while (*g_aux != '\n')
-		g_aux++;
-	g_aux++;
-	if (*g_aux == '\0')
-		return (NULL);
+    while (fd[g_len] != '\n')
+        g_len++;
+    if (g_len == 0)
+        g_len = BUFFER_SIZE;
+	g_aux = (char *)malloc((g_len + 1) * sizeof(char));
+    if (g_aux == NULL)
+        return (NULL);
+    g_len++;
+    g_buffer = 0;
+    while (fd[g_len] != '\0')
+    {
+        g_aux[g_buffer] = fd[g_len]; 
+        g_buffer++;
+        g_len++;
+    }
+    free(fd);
+    g_aux[g_buffer] = '\0';
 	g_hold = (t_list *)malloc(sizeof(t_list));
 	if (g_hold == NULL)
 		return (NULL);
 	g_hold->content = g_aux;
 	g_hold->next = NULL;
 	g_lst->next = g_hold;
-	g_buffer = BUFFER_SIZE;
 	return (g_lst);
 }
 
 static t_list	*creating_list(char *fd)
 {
-	if (!g_lst)
-		g_lst = NULL;
-    
-	if (!fd || !g_buffer)
-	{
-		if (g_lst)
-		{
-			free(g_lst->content);
-			free(g_lst);
-		}
-		return (NULL);
-	}
+	if (!g_lst || !g_buffer)
+        g_lst = NULL;
+	if (!g_buffer)
+    {
+        if (g_hold)
+            free(g_hold);
+        if (g_aux)
+            free(g_aux);
+        free(fd);
+        return (NULL);
+    }
 	fd[g_buffer] = '\0';
 	g_buffer = 0;
 	while (g_len--)
@@ -117,7 +121,7 @@ static t_list	*creating_list(char *fd)
 		if (fd[g_buffer] != '\n')
 			g_buffer++;
 		else if (fd[g_buffer] != '\0')
-			return (next_node(fd));
+            return (next_node(fd));
 	}
 	nodes(fd);
 	return (g_lst);
@@ -131,19 +135,19 @@ char	*get_next_line(int fd)
 	while (g_buffer)
 	{
 		g_len = BUFFER_SIZE;
-		yank = (char *)malloc(g_len * sizeof(char) + 1);
+		yank = (char *)malloc((g_len + 1) * sizeof(char));
 		if (yank == NULL)
 			return (NULL);
 		g_buffer = read(fd, yank, g_len);
 		creating_list(yank);
-		if (!g_buffer)
-			free(yank);
+        if (!g_lst)
+            return (NULL);
 		g_len = 0;
-		while (g_buffer && g_lst->content[g_len] != '\0')
+		while (g_lst->content[g_len])
 		{
 			g_len++;
 			if (g_lst->content[g_len] == '\n')
-				return (g_lst->content);
+                return (g_lst->content);
 		}
 	}
 	return (NULL);
@@ -153,16 +157,22 @@ char	*get_next_line(int fd)
 #include <stdio.h>
 int main(void)
 {
-	int fd;
-	int i;
+	int     fd;
+	int     i;
+    char    *str;
 
 	fd = open("text.txt", O_RDONLY);
-	i = 2;
+	i = 3;
 	while (i--)
 	{
-		printf("%s", get_next_line(fd));
+        str = get_next_line(fd);
+		printf("%s", str);
+        if (str != NULL)
+        {
+            free(str);
+            str = NULL;
+        }
 	}
-    free(get_next_line(fd));
 	close(fd);
 	return (0);
 }
