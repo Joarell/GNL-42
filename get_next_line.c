@@ -15,7 +15,7 @@
 static t_list	*g_lst;
 int				g_buffer;
 int				g_len;
-char			*g_aux;
+char			*g_yank;
 t_list			*g_hold;
 
 static char	*glue(char *fd)
@@ -23,14 +23,14 @@ static char	*glue(char *fd)
 	char	*complete;
 
 	if (g_lst)
-		g_aux = g_hold->content;
+		g_yank = g_hold->content;
 	complete = (char *)malloc((g_len + g_buffer + 1) * sizeof(char));
 	if (complete == NULL)
 		return (NULL);
 	g_buffer = 0;
-	while (g_aux)
+	while (g_yank)
 	{
-		complete[g_buffer] = g_aux[g_buffer];
+		complete[g_buffer] = g_yank[g_buffer];
 		g_buffer++;
 	}
 	if (g_lst)
@@ -55,115 +55,77 @@ static t_list	*nodes(char *line)
 	node = (t_list *)malloc(sizeof(t_list));
 	if (node == NULL)
 		return (NULL);
-	if (!g_lst)
-		node->content = glue(line);
-	else
+	if (g_lst)
 	{
 		while (g_lst->content[g_len] != '\0')
 			g_len++;
-		while (line[g_buffer] != '\0')
-			g_buffer++;
-		node->content = glue(line);
 	}
+	g_buffer = 0;
+	while (line[g_buffer] != '\n')
+		g_buffer++;
+	g_buffer++;
+	node->content = glue(line);
 	node->next = NULL;
 	node->back = NULL;
 	g_len = 0;
 	return (node);
 }
 
-static void	next_node(char *fd)
+static t_list	*next_node(char *fd)
 {
-	t_list	*cargo;
-
-	cargo = NULL;
 	if (!fd)
-		return ;
+		return (NULL);
 	if (!g_lst)
-		g_lst = nodes(fd);
+		return (g_lst = nodes(fd));
 	else
 	{
 		if (!g_hold)
 			g_hold = g_lst;
-		cargo = nodes(fd);
-		g_hold->next = cargo;
+		g_hold->next = nodes(fd);
 		if (!g_lst->back)
 			g_hold->back = g_lst;
 		else
 			g_hold->back = g_hold;
 		g_hold = g_hold->next;
 	}
-	g_lst->back = g_lst;
     while (*fd != '\n')
 		fd++;
 	fd++;
 	return (next_node(fd));
-	/* nodes(fd); */
-    /* fd += g_buffer; */
-	/* while (fd[g_len] != '\n') */
-	/* 	g_len++; */
-	/* g_aux = (char *)malloc((g_len + 1) * sizeof(char)); */
-	/* if (g_aux == NULL) */
-	/* 	return (NULL); */
-	/* g_len = 0; */
-	/* while (fd[g_len] != '\0') */
-	/* { */
-    /*     g_aux[g_len] = fd[g_len]; */
-    /*     if (fd[g_len] == '\n') */
-    /*         break ; */
-	/* 	g_len++; */
-	/* } */
-	/* g_aux[g_buffer] = '\0'; */
-	/* g_hold = (t_list *)malloc(sizeof(t_list)); */
-	/* if (g_hold == NULL) */
-	/* 	return (NULL); */
-	/* g_hold->content = g_aux; */
-	/* g_hold->next = NULL; */
-	/* g_lst->next = g_hold; */
-	/* return (g_lst); */
 }
 
 static t_list	*creating_list(char *fd)
 {
-    /* int     count; */
     char    *tmp;
 
     tmp = fd;
-    /* count = 0; */
 	if (!g_lst || !g_buffer)
 		g_lst = NULL;
 	fd[g_buffer] = '\0';
     g_buffer = 0;
 	next_node(tmp);
-	/* while (*tmp != '\0') */
-	/* { */
-	/* 	if (tmp[g_buffer] == '\n') */
-	/* 	{ */
-    /*         count = g_buffer; */
-    /*         count++; */
-	/* 		next_node(tmp); */
-    /*         g_buffer = count + g_len; */
-	/* 	} */
-	/* 	g_buffer++; */
-	/* } */
     free(fd);
 	return (g_lst);
 }
 
 char	*get_next_line(int fd)
 {
-	char	*yank;
-
 	g_buffer = 1;
 	while (g_buffer)
 	{
 		g_len = BUFFER_SIZE;
-		yank = (char *)malloc((g_len + 1) * sizeof(char));
-		if (yank == NULL)
+		g_yank = (char *)malloc((g_len + 1) * sizeof(char));
+		if (g_yank == NULL)
 			return (NULL);
-		g_buffer = read(fd, yank, g_len);
-		creating_list(yank);
-		if (!g_lst)
-			return (NULL);
+		g_buffer = read(fd, g_yank, g_len);
+		if (g_buffer == 0)
+			break ; 
+		g_len = 0;
+		while (g_yank[g_len] != '\0')
+			g_len++;
+		if (g_len <= BUFFER_SIZE)
+			return (g_yank);
+		creating_list(g_yank);
 		g_len = 0;
 		while (g_lst->content[g_len])
 		{
