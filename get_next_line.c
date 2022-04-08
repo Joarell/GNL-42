@@ -62,6 +62,7 @@ static t_list	*nodes(char *line)
 	g_buffer = 0;
 	while (line[g_buffer] != '\n' && line[g_buffer] != '\0')
 		g_buffer++;
+	g_buffer++;
 	node->content = glue(line);
 	node->next = NULL;
 	g_len = 0;
@@ -131,12 +132,7 @@ char	*get_next_line(int fd)
 		if (g_yank == NULL)
 			return (NULL);
 		g_buffer = read(fd, g_yank, g_len);
-		if (g_buffer == 0)
-			break ;
-		g_len = 0;
-		while (g_yank[g_len] != '\0')
-			g_len++;
-		if (g_len < BUFFER_SIZE && !g_lst)
+		if (g_buffer < BUFFER_SIZE && !g_lst)
 			return (g_yank);
 		creating_list(g_yank);
 		g_len = 0;
@@ -149,27 +145,27 @@ char	*get_next_line(int fd)
 	}
 	return (NULL);
 }
-/*  */
-/* #include <fcntl.h> */
-/* #include <stdio.h> */
-/* int main(void) */
-/* { */
-/* 	int     fd; */
-/* 	int     i; */
-/* 	char    *str; */
-/*  */
-/* 	fd = open("text.txt", O_RDONLY); */
-/* 	i = 5; */
-/* 	while (i--) */
-/* 	{ */
-/* 		str = get_next_line(fd); */
-/* 		printf("%s", str); */
-/* 		if (str != NULL) */
-/* 		{ */
-/* 			free(str); */
-/* 			str = NULL; */
-/* 		} */
-/* 	} */
-/* 	close(fd); */
-/* 	return (0); */
-/* } */
+
+#include <fcntl.h>
+#include <stdio.h>
+int main(void)
+{
+	int     fd;
+	int     i;
+	char    *str;
+
+	fd = open("text.txt", O_RDONLY);
+	i = 5;
+	while (i--)
+	{
+		str = get_next_line(fd);
+		printf("%s", str);
+		if (str != NULL)
+		{
+			free(str);
+			str = NULL;
+		}
+	}
+	close(fd);
+	return (0);
+}
