@@ -51,14 +51,12 @@ static t_list	*nodes(char *line)
 	t_list	*node;
 
 	g_buffer = 0;
-	if (!line)
-		return (NULL);
 	if (g_lst && g_lst->next)
 		g_lst = g_lst->next;
-	g_len = 0;
 	node = (t_list *)malloc(sizeof(t_list));
 	if (node == NULL)
 		return (NULL);
+	g_len = 0;
 	if (g_lst)
 	{
 		while (g_lst->content[g_len] != '\0')
@@ -67,17 +65,13 @@ static t_list	*nodes(char *line)
 	g_buffer = 0;
 	while (line[g_buffer] != '\n' && line[g_buffer] != '\0')
 		g_buffer++;
-	g_buffer++;
 	node->content = glue(line);
 	node->next = NULL;
-	g_len = 0;
 	return (node);
 }
 
 static t_list	*next_node(char *fd)
 {
-	char	*hold;
-
 	g_lst = nodes(fd);
 	while (*fd != '\n')
 		fd++;
@@ -85,20 +79,19 @@ static t_list	*next_node(char *fd)
 	g_buffer = g_len;
 	while (fd[g_len])
 		g_len++;
-	hold = (char *)malloc((g_len + 1) * sizeof(char));
-	if (hold == NULL)
-		return (NULL);
 	g_hold = (t_list *)malloc(sizeof(t_list));
+	if (g_hold == NULL)
+		return (NULL);
+	g_hold->content = (char *)malloc((g_len + 1) * sizeof(char));
 	if (g_hold == NULL)
 		return (NULL);
 	g_len = 0;
 	while (fd[g_len] != '\0')
 	{
-		hold[g_len] = fd[g_len];
+		g_hold->content[g_len] = fd[g_len];
 		g_len++;
 	}
-	hold[g_len] = '\0';
-	g_hold->content = hold;
+	g_hold->content[g_len] = '\0';
 	g_lst->next = g_hold;
 	return (g_lst);
 }
@@ -107,9 +100,9 @@ static char	*creating_list(char *fd)
 {
 	char	*tmp;
 
-	tmp = fd;
 	if (!g_lst)
 		g_lst = NULL;
+	tmp = fd;
 	if (g_buffer < BUFFER_SIZE && !g_lst)
 	{
 		tmp = (char *)malloc((g_buffer + 1) * sizeof(char));
@@ -130,7 +123,7 @@ static char	*creating_list(char *fd)
 	while (fd[g_buffer] != '\n' && fd[g_buffer] != '\0')
 		g_buffer++;
 	if (fd[g_buffer] == '\n')
-		next_node(fd);
+		next_node(tmp);
 	else
 		g_lst = nodes(tmp);
 	free(fd);
@@ -160,6 +153,8 @@ char	*get_next_line(int fd)
 				return (g_lst->content);
 		}
 	}
+	free(g_lst);
+	free(g_hold);
 	free(g_yank);
 	return (NULL);
 }
@@ -173,7 +168,7 @@ int main(void)
 	char    *str;
 
 	fd = open("text.txt", O_RDONLY);
-	i = 5;
+	i = 4;
 	while (i--)
 	{
 		str = get_next_line(fd);
