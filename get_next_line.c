@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+/* ************************************************************************* */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
@@ -46,12 +46,40 @@ static char	*glue(char *fd)
 	return (complete);
 }
 
+static t_list	*next_node(char *fd)
+{
+	char	*hold;
+
+	while (*fd != '\n')
+		fd++;
+	if (fd[1] != '\0')
+		fd++;
+	g_buffer = g_len;
+	while (fd[g_len])
+		g_len++;
+	g_hold = (t_list *)malloc(sizeof(t_list));
+	if (g_hold == NULL)
+		return (NULL);
+	hold= (char *)malloc((g_len + 1) * sizeof(char));
+	if (hold == NULL)
+		return (NULL);
+	g_len = 0;
+	while (fd[g_len] != '\0')
+	{
+		hold[g_len] = fd[g_len];
+		g_len++;
+	}
+	hold[g_len] = '\0';
+	g_hold->content = hold;
+	g_lst->next = g_hold;
+	return (g_hold);
+}
+
 static t_list	*nodes(char *line)
 {
 	t_list	*node;
 
-	g_buffer = 0;
-	if (g_lst && g_lst->next)
+	if (g_hold)
 		g_lst = g_lst->next;
 	node = (t_list *)malloc(sizeof(t_list));
 	if (node == NULL)
@@ -65,44 +93,26 @@ static t_list	*nodes(char *line)
 	g_buffer = 0;
 	while (line[g_buffer] != '\n' && line[g_buffer] != '\0')
 		g_buffer++;
+	g_buffer++;
 	node->content = glue(line);
-	node->next = NULL;
+	g_lst = node;
+	g_buffer = 0;
+	while (line[g_buffer] != '\n' && line[g_buffer] != '\0')
+		g_buffer++;
+	if (line[g_buffer] == '\n')
+		next_node(line);
+	else
+		g_hold = NULL;
 	return (node);
-}
-
-static t_list	*next_node(char *fd)
-{
-	g_lst = nodes(fd);
-	while (*fd != '\n')
-		fd++;
-	fd++;
-	g_buffer = g_len;
-	while (fd[g_len])
-		g_len++;
-	g_hold = (t_list *)malloc(sizeof(t_list));
-	if (g_hold == NULL)
-		return (NULL);
-	g_hold->content = (char *)malloc((g_len + 1) * sizeof(char));
-	if (g_hold == NULL)
-		return (NULL);
-	g_len = 0;
-	while (fd[g_len] != '\0')
-	{
-		g_hold->content[g_len] = fd[g_len];
-		g_len++;
-	}
-	g_hold->content[g_len] = '\0';
-	g_lst->next = g_hold;
-	return (g_lst);
 }
 
 static char	*creating_list(char *fd)
 {
 	char	*tmp;
 
+	tmp = fd;
 	if (!g_lst)
 		g_lst = NULL;
-	tmp = fd;
 	if (g_buffer < BUFFER_SIZE && !g_lst)
 	{
 		tmp = (char *)malloc((g_buffer + 1) * sizeof(char));
@@ -119,13 +129,7 @@ static char	*creating_list(char *fd)
 		return (tmp);
 	}
 	fd[g_buffer] = '\0';
-	g_buffer = 0;
-	while (fd[g_buffer] != '\n' && fd[g_buffer] != '\0')
-		g_buffer++;
-	if (fd[g_buffer] == '\n')
-		next_node(tmp);
-	else
-		g_lst = nodes(tmp);
+	nodes(tmp);
 	free(fd);
 	return (g_lst->content);
 }
