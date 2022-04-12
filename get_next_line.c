@@ -32,7 +32,7 @@ static char	*glue(char *fd)
 		g_buffer++;
 	}
 	if (g_lst)
-		free(g_lst);
+		free(g_lst->content);
 	g_len = 0;
 	while (fd[g_len] != '\0')
 	{
@@ -50,18 +50,16 @@ static t_list	*next_node(char *fd)
 {
 	char	*hold;
 
-	while (*fd != '\n')
-		fd++;
+	fd += g_buffer;
 	if (fd[1] != '\0')
 		fd++;
 	g_buffer = g_len;
 	while (fd[g_len])
 		g_len++;
-	g_hold = (t_list *)malloc(sizeof(t_list));
-	if (g_hold == NULL)
-		return (NULL);
-	hold= (char *)malloc((g_len + 1) * sizeof(char));
-	if (hold == NULL)
+	if (!g_hold)
+		g_hold = (t_list *)malloc(sizeof(t_list));
+	hold = (char *)malloc((g_len + 1) * sizeof(char));
+	if (hold == NULL || g_hold == NULL)
 		return (NULL);
 	g_len = 0;
 	while (fd[g_len] != '\0')
