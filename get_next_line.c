@@ -13,8 +13,8 @@
 #include "get_next_line.h"
 
 static t_list	*g_lst;
-int				g_buffer;
-int				g_len;
+unsigned int	g_buffer;
+unsigned int	g_len;
 char			*g_yank;
 t_list			*g_hold;
 
@@ -32,7 +32,7 @@ static char	*glue(char *fd)
 		g_buffer++;
 	}
 	if (g_lst)
-		free(g_lst->content);
+		free(g_lst);
 	g_len = 0;
 	while (fd[g_len] != '\0')
 	{
@@ -73,7 +73,7 @@ static t_list	*next_node(char *fd)
 	return (g_hold);
 }
 
-static t_list	*nodes(char *line)
+static void	nodes(char *line)
 {
 	t_list	*node;
 
@@ -81,7 +81,7 @@ static t_list	*nodes(char *line)
 		g_lst = g_lst->next;
 	node = (t_list *)malloc(sizeof(t_list));
 	if (node == NULL)
-		return (NULL);
+		return ;
 	g_len = 0;
 	if (g_lst)
 	{
@@ -101,7 +101,6 @@ static t_list	*nodes(char *line)
 		next_node(line);
 	else
 		g_hold = NULL;
-	return (node);
 }
 
 static char	*creating_list(char *fd)
